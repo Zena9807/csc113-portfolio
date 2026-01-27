@@ -3,7 +3,7 @@
 This is my collection of useful prompts organized by purpose.
 
 ## Explanations & Learning
-1. **Maintain a Prompt Library for Quick Access**
+**Maintain a Prompt Library for Quick Access**
 
 ## Send this to me in a chart for comparison.
 
@@ -27,4 +27,5 @@ Use my language style and say it like you were me.
 ---
 *Total Prompts: 5*  
 *Last Updated: 1/26/26*
+
 
