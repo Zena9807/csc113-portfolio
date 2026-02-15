@@ -1,4 +1,4 @@
-# AI Tool Comparison - Week 2
+# AI Tool Comparison 
 
 ## Test Date: 1/26/26
 
@@ -56,4 +56,5 @@ Overall, each have their own space in AI. I would use Gemini for most things, re
 **Tool**: Gemini  
 **Reasoning**: This tool gave the most details with the most appropriate support and conversation. 
 **Backup Plan**: Switching between tools would be the best way. Gemini for harder tasks since it has the higher rate limit. Claude for tasks that need step-by-step directions, but not as difficult. ChatGPT for basic questions.
+
 
