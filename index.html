@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Customer Experience Coach</title>
   <style>
-    /* ------------------------------
-       Base Page Styles
-    ------------------------------ */
     * {
       box-sizing: border-box;
     }
@@ -172,6 +169,15 @@
       color: #991b1b;
     }
 
+    .rewrite-box {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 10px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e3a8a;
+    }
+
     ul {
       margin-top: 8px;
       padding-left: 20px;
@@ -210,7 +216,8 @@
 
       <div class="instructions">
         <strong>How to use:</strong> Paste or type a customer-facing message, then click
-        <strong>Analyze Message</strong>. The tool will review the message and give basic coaching feedback.
+        <strong>Analyze Message</strong>. The tool will review the message, suggest improvements,
+        and provide wording you can use.
       </div>
 
       <label for="messageInput">Customer Service Message</label>
@@ -242,13 +249,13 @@
           </div>
 
           <div class="result-box">
-           <h2 class="result-title">Suggestions for Improvement</h2>
-<ul id="suggestionsList"></ul>
+            <h2 class="result-title">Suggestions for Improvement</h2>
+            <ul id="suggestionsList"></ul>
 
-<div style="margin-top: 12px;">
-  <strong>Suggested Rewrite:</strong>
-  <p id="rewriteResult"></p>
-</div>
+            <div class="rewrite-box">
+              <strong>Suggested Rewrite:</strong>
+              <p id="rewriteResult"></p>
+            </div>
           </div>
         </div>
       </div>
@@ -261,9 +268,6 @@
   </div>
 
   <script>
-    /* ----------------------------------
-       Element References
-    ---------------------------------- */
     const messageInput = document.getElementById("messageInput");
     const analyzeBtn = document.getElementById("analyzeBtn");
     const clearBtn = document.getElementById("clearBtn");
@@ -273,10 +277,8 @@
     const toneResult = document.getElementById("toneResult");
     const feedbackResult = document.getElementById("feedbackResult");
     const suggestionsList = document.getElementById("suggestionsList");
+    const rewriteResult = document.getElementById("rewriteResult");
 
-    /* ----------------------------------
-       Keyword Groups
-    ---------------------------------- */
     const positiveWords = [
       "thank you", "appreciate", "happy", "glad", "pleased", "help", "support",
       "understand", "sorry", "apologize", "resolve", "assist", "patience"
@@ -284,7 +286,8 @@
 
     const negativeWords = [
       "can't", "cannot", "won't", "impossible", "policy", "denied", "problem",
-      "frustrated", "angry", "upset", "no", "not my fault", "nothing"
+      "frustrated", "angry", "upset", "no", "not my fault", "nothing",
+      "unable", "outside"
     ];
 
     const empathyWords = [
@@ -294,12 +297,9 @@
 
     const professionalismWords = [
       "please", "thank you", "assist", "resolve", "appreciate", "certainly",
-      "glad to help", "i'd be happy to"
+      "glad to help", "i'd be happy to", "unfortunately"
     ];
 
-    /* ----------------------------------
-       Analyze Button Click
-    ---------------------------------- */
     analyzeBtn.addEventListener("click", analyzeMessage);
     clearBtn.addEventListener("click", clearAll);
     exampleBtn.addEventListener("click", loadExample);
@@ -308,26 +308,23 @@
       const message = messageInput.value.trim();
       const lowerMessage = message.toLowerCase();
 
-      // Reset display states
       errorBox.style.display = "none";
       resultsSection.style.display = "none";
       suggestionsList.innerHTML = "";
       toneResult.innerHTML = "";
       feedbackResult.textContent = "";
+      rewriteResult.textContent = "";
 
-      // Validate input
       if (!message) {
         errorBox.style.display = "block";
         return;
       }
 
-      // Score the message using simple keyword logic
       const positiveScore = countMatches(lowerMessage, positiveWords);
       const negativeScore = countMatches(lowerMessage, negativeWords);
       const empathyScore = countMatches(lowerMessage, empathyWords);
       const professionalismScore = countMatches(lowerMessage, professionalismWords);
 
-      // Determine tone
       let tone = "Neutral";
       let toneClass = "tone-neutral";
 
@@ -339,13 +336,12 @@
         toneClass = "tone-negative";
       }
 
-      // Build feedback
       let feedback = [];
 
       if (empathyScore > 0) {
         feedback.push("Your message shows some empathy, which helps the customer feel heard.");
       } else {
-        feedback.push("Your message could feel stronger with more empathy toward the customer.");
+        feedback.push("Your message would be stronger with more empathy toward the customer.");
       }
 
       if (professionalismScore > 0) {
@@ -357,39 +353,45 @@
       if (tone === "Positive") {
         feedback.push("Overall, the tone comes across as supportive and helpful.");
       } else if (tone === "Neutral") {
-        feedback.push("The tone is neutral. It may benefit from warmer, more customer-friendly wording.");
+        feedback.push("The tone is neutral, but it could feel warmer and more customer-friendly.");
       } else {
         feedback.push("The tone may come across as harsh or discouraging to the customer.");
       }
 
-      // Build suggestions
       const suggestions = [];
+      let rewriteParts = [];
 
       if (empathyScore === 0) {
-        suggestions.push("Add a phrase that shows empathy, such as “I understand your frustration” or “Thank you for your patience.”");
+        suggestions.push("Add empathy so the customer feels understood.");
+        rewriteParts.push("I understand your concern and appreciate your patience.");
       }
 
       if (professionalismScore === 0) {
-        suggestions.push("Use more professional wording, such as “I’d be happy to assist” or “Let’s work on resolving this.”");
+        suggestions.push("Use more professional and supportive language.");
+        rewriteParts.push("I’d be happy to assist you with this.");
       }
 
       if (tone === "Negative") {
-        suggestions.push("Replace blunt or negative wording with calmer, more solution-focused language.");
-      }
-
-      if (message.length < 30) {
-        suggestions.push("Add more detail so the customer clearly understands the next step.");
+        suggestions.push("Soften negative wording and focus more on what can be done.");
+        rewriteParts.push("While this request may fall outside our current guidelines,");
       }
 
       if (!lowerMessage.includes("next") && !lowerMessage.includes("will") && !lowerMessage.includes("follow up")) {
         suggestions.push("Include a next step so the customer knows what to expect.");
+        rewriteParts.push("I can review your situation and provide the next steps.");
+      }
+
+      if (message.length < 30) {
+        suggestions.push("Add a little more detail so the message feels complete.");
       }
 
       if (suggestions.length === 0) {
-        suggestions.push("This message is off to a good start. You could make it even better by personalizing it for the customer.");
+        suggestions.push("This message is strong. Consider personalizing it for the customer.");
+        rewriteResult.textContent = "Your message is already strong. You could make it even better by adding a personal detail or customer-specific next step.";
+      } else {
+        rewriteResult.textContent = rewriteParts.join(" ");
       }
 
-      // Display results
       toneResult.innerHTML = `<span class="tone-badge ${toneClass}">${tone}</span>`;
       feedbackResult.textContent = feedback.join(" ");
 
@@ -402,9 +404,6 @@
       resultsSection.style.display = "block";
     }
 
-    /* ----------------------------------
-       Helper Functions
-    ---------------------------------- */
     function countMatches(text, keywords) {
       let count = 0;
       keywords.forEach((word) => {
@@ -422,6 +421,7 @@
       toneResult.innerHTML = "";
       feedbackResult.textContent = "";
       suggestionsList.innerHTML = "";
+      rewriteResult.textContent = "";
     }
 
     function loadExample() {
