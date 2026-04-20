@@ -17,6 +17,10 @@
 - Feedback is helpful but general and does not provide examples to replace negative or neutral statements
 - The UI is clean and easy to use
 - The improved version now includes a "Suggested Rewrite" feature that provides direct wording users can apply in real scenarios
+- Updated version includes multiple rewrite options instead of a single suggestion
+- Each rewrite option can be copied directly using a "Copy" button
+- Copy buttons now provide visual feedback by changing to "Copied!"
+- Feedback tone was improved to sound more like a real team lead or coach instead of generic AI responses
 
 ---
 
@@ -74,7 +78,12 @@ After comparing both versions, I chose to continue with ChatGPT's version becaus
 
 ## Final Decision
 
-After testing multiple versions, I chose to continue with ChatGPT's version because it provided the best balance of usability, structure, and actionable feedback. 
+After testing multiple versions, I chose to continue with ChatGPT's version because it provided the best structure, usability, and overall user experience.
 
-After further iteration, the application was improved to include a "Suggested Rewrite" feature, which enhances the usefulness of the tool by giving users direct wording they can apply in customer interactions.
+After additional iterations, the application was significantly improved by:
+- Making feedback more natural and human-sounding
+- Adding multiple ready-to-use rewrite options
+- Adding copy-to-clipboard functionality with visual confirmation
+
+These improvements made the tool more practical and closer to a real-world customer experience coaching solution.
 ---
