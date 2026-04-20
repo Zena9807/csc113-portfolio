@@ -17,7 +17,7 @@
     }
 
     .container {
-      max-width: 900px;
+      max-width: 1000px;
       margin: 40px auto;
       padding: 24px;
     }
@@ -111,6 +111,14 @@
       color: white;
     }
 
+    .copy-btn {
+      background: #1d4ed8;
+      color: #ffffff;
+      padding: 10px 14px;
+      font-size: 0.92rem;
+      margin-top: 10px;
+    }
+
     .error {
       margin-top: 14px;
       padding: 12px 14px;
@@ -119,6 +127,17 @@
       color: #b91c1c;
       border: 1px solid #fecaca;
       display: none;
+    }
+
+    .copy-status {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #ecfeff;
+      color: #155e75;
+      border: 1px solid #a5f3fc;
+      display: none;
+      font-size: 0.95rem;
     }
 
     .results {
@@ -169,18 +188,29 @@
       color: #991b1b;
     }
 
-    .rewrite-box {
-      margin-top: 14px;
-      padding: 14px;
-      border-radius: 10px;
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      color: #1e3a8a;
-    }
-
     ul {
       margin-top: 8px;
       padding-left: 20px;
+    }
+
+    .rewrite-card {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+
+    .rewrite-label {
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #1e3a8a;
+    }
+
+    .rewrite-text {
+      margin: 0;
+      line-height: 1.6;
+      color: #1e293b;
     }
 
     .footer-note {
@@ -202,6 +232,14 @@
       h1 {
         font-size: 1.6rem;
       }
+
+      .button-row {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -210,20 +248,20 @@
     <div class="card">
       <h1>AI Customer Experience Coach</h1>
       <p class="subtitle">
-        Paste a customer service message below and get feedback on tone, empathy,
-        professionalism, and ways to improve it.
+        Paste a customer service message below and get practical feedback on tone, empathy,
+        professionalism, and clearer ways to respond.
       </p>
 
       <div class="instructions">
         <strong>How to use:</strong> Paste or type a customer-facing message, then click
-        <strong>Analyze Message</strong>. The tool will review the message, suggest improvements,
-        and provide wording you can use.
+        <strong>Analyze Message</strong>. The app will review the message, give coaching-style
+        feedback, and offer multiple response options you can copy and paste directly.
       </div>
 
       <label for="messageInput">Customer Service Message</label>
       <textarea
         id="messageInput"
-        placeholder="Example: I understand your frustration and I appreciate your patience while we look into this for you."
+        placeholder="Example: We understand your frustration and appreciate your patience while we review this for you."
       ></textarea>
 
       <div class="button-row">
@@ -236,6 +274,10 @@
         Please enter a customer service message before clicking Analyze.
       </div>
 
+      <div class="copy-status" id="copyStatus">
+        Rewrite copied to clipboard.
+      </div>
+
       <div class="results" id="resultsSection">
         <div class="results-grid">
           <div class="result-box">
@@ -244,25 +286,42 @@
           </div>
 
           <div class="result-box">
-            <h2 class="result-title">Empathy & Professionalism Feedback</h2>
+            <h2 class="result-title">Coaching Feedback</h2>
             <p id="feedbackResult"></p>
           </div>
 
           <div class="result-box">
-            <h2 class="result-title">Suggestions for Improvement</h2>
+            <h2 class="result-title">What to Improve</h2>
             <ul id="suggestionsList"></ul>
+          </div>
 
-            <div class="rewrite-box">
-              <strong>Suggested Rewrite:</strong>
-              <p id="rewriteResult"></p>
+          <div class="result-box">
+            <h2 class="result-title">Ready-to-Use Rewrite Options</h2>
+
+            <div class="rewrite-card">
+              <div class="rewrite-label">Option 1: Warm and Professional</div>
+              <p class="rewrite-text" id="rewriteOption1"></p>
+              <button class="copy-btn" onclick="copyRewrite('rewriteOption1')">Copy Option 1</button>
+            </div>
+
+            <div class="rewrite-card">
+              <div class="rewrite-label">Option 2: Supportive and Clear</div>
+              <p class="rewrite-text" id="rewriteOption2"></p>
+              <button class="copy-btn" onclick="copyRewrite('rewriteOption2')">Copy Option 2</button>
+            </div>
+
+            <div class="rewrite-card">
+              <div class="rewrite-label">Option 3: Direct but Customer-Friendly</div>
+              <p class="rewrite-text" id="rewriteOption3"></p>
+              <button class="copy-btn" onclick="copyRewrite('rewriteOption3')">Copy Option 3</button>
             </div>
           </div>
         </div>
       </div>
 
       <p class="footer-note">
-        Note: This MVP uses simple keyword-based logic for feedback. It is a prototype designed
-        to demonstrate the concept in a browser.
+        Note: This MVP uses simple keyword-based logic and response patterns. It is a prototype
+        designed to demonstrate how browser-based coaching feedback could work.
       </p>
     </div>
   </div>
@@ -273,11 +332,14 @@
     const clearBtn = document.getElementById("clearBtn");
     const exampleBtn = document.getElementById("exampleBtn");
     const errorBox = document.getElementById("errorBox");
+    const copyStatus = document.getElementById("copyStatus");
     const resultsSection = document.getElementById("resultsSection");
     const toneResult = document.getElementById("toneResult");
     const feedbackResult = document.getElementById("feedbackResult");
     const suggestionsList = document.getElementById("suggestionsList");
-    const rewriteResult = document.getElementById("rewriteResult");
+    const rewriteOption1 = document.getElementById("rewriteOption1");
+    const rewriteOption2 = document.getElementById("rewriteOption2");
+    const rewriteOption3 = document.getElementById("rewriteOption3");
 
     const positiveWords = [
       "thank you", "appreciate", "happy", "glad", "pleased", "help", "support",
@@ -287,7 +349,7 @@
     const negativeWords = [
       "can't", "cannot", "won't", "impossible", "policy", "denied", "problem",
       "frustrated", "angry", "upset", "no", "not my fault", "nothing",
-      "unable", "outside"
+      "unable", "outside", "not allowed"
     ];
 
     const empathyWords = [
@@ -308,12 +370,7 @@
       const message = messageInput.value.trim();
       const lowerMessage = message.toLowerCase();
 
-      errorBox.style.display = "none";
-      resultsSection.style.display = "none";
-      suggestionsList.innerHTML = "";
-      toneResult.innerHTML = "";
-      feedbackResult.textContent = "";
-      rewriteResult.textContent = "";
+      resetResults();
 
       if (!message) {
         errorBox.style.display = "block";
@@ -336,72 +393,110 @@
         toneClass = "tone-negative";
       }
 
-      let feedback = [];
-
-      if (empathyScore > 0) {
-        feedback.push("Your message shows some empathy, which helps the customer feel heard.");
-      } else {
-        feedback.push("Your message would be stronger with more empathy toward the customer.");
-      }
-
-      if (professionalismScore > 0) {
-        feedback.push("The wording sounds reasonably professional.");
-      } else {
-        feedback.push("The message could sound more polished and professional.");
-      }
-
-      if (tone === "Positive") {
-        feedback.push("Overall, the tone comes across as supportive and helpful.");
-      } else if (tone === "Neutral") {
-        feedback.push("The tone is neutral, but it could feel warmer and more customer-friendly.");
-      } else {
-        feedback.push("The tone may come across as harsh or discouraging to the customer.");
-      }
-
-      const suggestions = [];
-      let rewriteParts = [];
-
-      if (empathyScore === 0) {
-        suggestions.push("Add empathy so the customer feels understood.");
-        rewriteParts.push("I understand your concern and appreciate your patience.");
-      }
-
-      if (professionalismScore === 0) {
-        suggestions.push("Use more professional and supportive language.");
-        rewriteParts.push("I’d be happy to assist you with this.");
-      }
-
-      if (tone === "Negative") {
-        suggestions.push("Soften negative wording and focus more on what can be done.");
-        rewriteParts.push("While this request may fall outside our current guidelines,");
-      }
-
-      if (!lowerMessage.includes("next") && !lowerMessage.includes("will") && !lowerMessage.includes("follow up")) {
-        suggestions.push("Include a next step so the customer knows what to expect.");
-        rewriteParts.push("I can review your situation and provide the next steps.");
-      }
-
-      if (message.length < 30) {
-        suggestions.push("Add a little more detail so the message feels complete.");
-      }
-
-      if (suggestions.length === 0) {
-        suggestions.push("This message is strong. Consider personalizing it for the customer.");
-        rewriteResult.textContent = "Your message is already strong. You could make it even better by adding a personal detail or customer-specific next step.";
-      } else {
-        rewriteResult.textContent = rewriteParts.join(" ");
-      }
-
       toneResult.innerHTML = `<span class="tone-badge ${toneClass}">${tone}</span>`;
-      feedbackResult.textContent = feedback.join(" ");
 
+      const feedback = buildHumanFeedback(tone, empathyScore, professionalismScore, lowerMessage);
+      feedbackResult.textContent = feedback;
+
+      const suggestions = buildSuggestions(tone, empathyScore, professionalismScore, message, lowerMessage);
       suggestions.forEach((suggestion) => {
         const li = document.createElement("li");
         li.textContent = suggestion;
         suggestionsList.appendChild(li);
       });
 
+      const rewrites = buildRewriteOptions(tone, empathyScore, professionalismScore, lowerMessage);
+      rewriteOption1.textContent = rewrites.option1;
+      rewriteOption2.textContent = rewrites.option2;
+      rewriteOption3.textContent = rewrites.option3;
+
       resultsSection.style.display = "block";
+    }
+
+    function buildHumanFeedback(tone, empathyScore, professionalismScore, lowerMessage) {
+      if (tone === "Negative" && empathyScore === 0 && professionalismScore === 0) {
+        return "This gets the point across, but it may come off a little too blunt. Right now the message tells the customer what cannot be done, but it does not do much to acknowledge their frustration or guide them toward a next step. A stronger response would sound calmer, more supportive, and a little more solution-focused.";
+      }
+
+      if (tone === "Negative") {
+        return "The message is clear, but the tone may land harder than you want. It would help to soften the wording a bit, acknowledge the customer’s concern, and make it clearer what support or next step you can offer.";
+      }
+
+      if (tone === "Neutral" && empathyScore === 0) {
+        return "This is professional enough, but it feels a little flat. It would be stronger if you opened with a more human acknowledgment so the customer feels heard before you move into the response.";
+      }
+
+      if (tone === "Neutral") {
+        return "This is clear and fairly professional, but it could feel warmer. A small adjustment in tone and a stronger next-step statement would make it sound more polished and customer-friendly.";
+      }
+
+      if (tone === "Positive" && empathyScore > 0 && professionalismScore > 0) {
+        return "This is in a good place overall. The message feels supportive, professional, and easy to understand. If you want to strengthen it even more, you could personalize the closing or make the next step a little more specific.";
+      }
+
+      return "This message is headed in the right direction. The tone is solid, but a little more warmth and clearer guidance would make it feel stronger and more complete.";
+    }
+
+    function buildSuggestions(tone, empathyScore, professionalismScore, message, lowerMessage) {
+      const suggestions = [];
+
+      if (empathyScore === 0) {
+        suggestions.push("Open with a sentence that shows you understand the customer’s concern.");
+      }
+
+      if (professionalismScore === 0) {
+        suggestions.push("Use wording that sounds more polished and supportive.");
+      }
+
+      if (tone === "Negative") {
+        suggestions.push("Shift the focus away from what cannot be done and toward what help you can offer.");
+      }
+
+      if (!lowerMessage.includes("next") && !lowerMessage.includes("will") && !lowerMessage.includes("follow up")) {
+        suggestions.push("Add a clear next step so the customer knows what to expect.");
+      }
+
+      if (message.length < 35) {
+        suggestions.push("Add a little more detail so the message feels more complete.");
+      }
+
+      if (suggestions.length === 0) {
+        suggestions.push("The message is already strong. Consider personalizing it slightly for the customer or situation.");
+      }
+
+      return suggestions;
+    }
+
+    function buildRewriteOptions(tone, empathyScore, professionalismScore, lowerMessage) {
+      if (tone === "Negative") {
+        return {
+          option1: "I understand your concern, and I appreciate you reaching out. While this request falls outside our current guidelines, I’d still be happy to review your situation and walk you through the next available steps.",
+          option2: "I can understand why this would be frustrating. Although we are not able to make that change under the current policy, I’d be glad to help review what options are available from here.",
+          option3: "Thank you for your message. At this time, we’re not able to approve that request, but I can help explain the next step and review any available options with you."
+        };
+      }
+
+      if (tone === "Neutral" && empathyScore === 0) {
+        return {
+          option1: "I understand your concern, and I’m happy to help. Let me take a closer look and share the next steps with you.",
+          option2: "Thank you for reaching out. I’d be glad to review this with you and provide more information on what comes next.",
+          option3: "I appreciate you bringing this to our attention. I’m looking into it and will help guide you through the next step."
+        };
+      }
+
+      if (tone === "Positive") {
+        return {
+          option1: "Thank you for your patience. I’m happy to help review this for you and will share the next steps as clearly as possible.",
+          option2: "I understand your concern, and I appreciate you reaching out. I’d be glad to assist and help move this forward.",
+          option3: "Thanks for your message. I’m happy to help take a closer look and provide the next step from here."
+        };
+      }
+
+      return {
+        option1: "Thank you for reaching out. I understand your concern, and I’d be happy to help review the situation and provide the next steps.",
+        option2: "I appreciate your patience. Let me take a closer look and walk you through what comes next.",
+        option3: "I understand the concern here, and I’m glad to help. I’ll review the situation and provide the best next step available."
+      };
     }
 
     function countMatches(text, keywords) {
@@ -414,20 +509,46 @@
       return count;
     }
 
-    function clearAll() {
-      messageInput.value = "";
+    function copyRewrite(elementId) {
+      const text = document.getElementById(elementId).textContent;
+
+      navigator.clipboard.writeText(text).then(() => {
+        copyStatus.textContent = "Rewrite copied to clipboard.";
+        copyStatus.style.display = "block";
+
+        setTimeout(() => {
+          copyStatus.style.display = "none";
+        }, 2000);
+      }).catch(() => {
+        copyStatus.textContent = "Copy failed. Please highlight and copy manually.";
+        copyStatus.style.display = "block";
+
+        setTimeout(() => {
+          copyStatus.style.display = "none";
+        }, 2500);
+      });
+    }
+
+    function resetResults() {
       errorBox.style.display = "none";
+      copyStatus.style.display = "none";
       resultsSection.style.display = "none";
       toneResult.innerHTML = "";
       feedbackResult.textContent = "";
       suggestionsList.innerHTML = "";
-      rewriteResult.textContent = "";
+      rewriteOption1.textContent = "";
+      rewriteOption2.textContent = "";
+      rewriteOption3.textContent = "";
+    }
+
+    function clearAll() {
+      messageInput.value = "";
+      resetResults();
     }
 
     function loadExample() {
-      messageInput.value = "We understand your frustration and appreciate your patience. I’d be happy to help review your account and provide the next steps.";
-      errorBox.style.display = "none";
-      resultsSection.style.display = "none";
+      messageInput.value = "We can’t do that. That’s not our policy.";
+      resetResults();
     }
   </script>
 </body>
