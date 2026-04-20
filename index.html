@@ -88,7 +88,7 @@
       font-size: 1rem;
       font-weight: bold;
       cursor: pointer;
-      transition: transform 0.15s ease, opacity 0.15s ease;
+      transition: transform 0.15s ease, opacity 0.15s ease, background 0.2s ease;
     }
 
     button:hover {
@@ -127,17 +127,6 @@
       color: #b91c1c;
       border: 1px solid #fecaca;
       display: none;
-    }
-
-    .copy-status {
-      margin-top: 12px;
-      padding: 10px 12px;
-      border-radius: 10px;
-      background: #ecfeff;
-      color: #155e75;
-      border: 1px solid #a5f3fc;
-      display: none;
-      font-size: 0.95rem;
     }
 
     .results {
@@ -274,10 +263,6 @@
         Please enter a customer service message before clicking Analyze.
       </div>
 
-      <div class="copy-status" id="copyStatus">
-        Rewrite copied to clipboard.
-      </div>
-
       <div class="results" id="resultsSection">
         <div class="results-grid">
           <div class="result-box">
@@ -301,19 +286,19 @@
             <div class="rewrite-card">
               <div class="rewrite-label">Option 1: Warm and Professional</div>
               <p class="rewrite-text" id="rewriteOption1"></p>
-              <button class="copy-btn" onclick="copyRewrite('rewriteOption1')">Copy Option 1</button>
+              <button class="copy-btn" onclick="copyRewrite('rewriteOption1', this)">Copy Option 1</button>
             </div>
 
             <div class="rewrite-card">
               <div class="rewrite-label">Option 2: Supportive and Clear</div>
               <p class="rewrite-text" id="rewriteOption2"></p>
-              <button class="copy-btn" onclick="copyRewrite('rewriteOption2')">Copy Option 2</button>
+              <button class="copy-btn" onclick="copyRewrite('rewriteOption2', this)">Copy Option 2</button>
             </div>
 
             <div class="rewrite-card">
               <div class="rewrite-label">Option 3: Direct but Customer-Friendly</div>
               <p class="rewrite-text" id="rewriteOption3"></p>
-              <button class="copy-btn" onclick="copyRewrite('rewriteOption3')">Copy Option 3</button>
+              <button class="copy-btn" onclick="copyRewrite('rewriteOption3', this)">Copy Option 3</button>
             </div>
           </div>
         </div>
@@ -332,7 +317,6 @@
     const clearBtn = document.getElementById("clearBtn");
     const exampleBtn = document.getElementById("exampleBtn");
     const errorBox = document.getElementById("errorBox");
-    const copyStatus = document.getElementById("copyStatus");
     const resultsSection = document.getElementById("resultsSection");
     const toneResult = document.getElementById("toneResult");
     const feedbackResult = document.getElementById("feedbackResult");
@@ -395,7 +379,7 @@
 
       toneResult.innerHTML = `<span class="tone-badge ${toneClass}">${tone}</span>`;
 
-      const feedback = buildHumanFeedback(tone, empathyScore, professionalismScore, lowerMessage);
+      const feedback = buildHumanFeedback(tone, empathyScore, professionalismScore);
       feedbackResult.textContent = feedback;
 
       const suggestions = buildSuggestions(tone, empathyScore, professionalismScore, message, lowerMessage);
@@ -405,7 +389,7 @@
         suggestionsList.appendChild(li);
       });
 
-      const rewrites = buildRewriteOptions(tone, empathyScore, professionalismScore, lowerMessage);
+      const rewrites = buildRewriteOptions(tone, empathyScore);
       rewriteOption1.textContent = rewrites.option1;
       rewriteOption2.textContent = rewrites.option2;
       rewriteOption3.textContent = rewrites.option3;
@@ -413,43 +397,43 @@
       resultsSection.style.display = "block";
     }
 
-    function buildHumanFeedback(tone, empathyScore, professionalismScore, lowerMessage) {
+    function buildHumanFeedback(tone, empathyScore, professionalismScore) {
       if (tone === "Negative" && empathyScore === 0 && professionalismScore === 0) {
-        return "This gets the point across, but it may come off a little too blunt. Right now the message tells the customer what cannot be done, but it does not do much to acknowledge their frustration or guide them toward a next step. A stronger response would sound calmer, more supportive, and a little more solution-focused.";
+        return "This gets the point across, but it may feel too blunt as written. Right now it focuses more on what cannot be done than on helping the customer feel heard. A stronger response would soften the tone, acknowledge the concern, and make the next step clearer.";
       }
 
       if (tone === "Negative") {
-        return "The message is clear, but the tone may land harder than you want. It would help to soften the wording a bit, acknowledge the customer’s concern, and make it clearer what support or next step you can offer.";
+        return "The message is clear, but the tone may land a little harder than you want. It would help to make it sound more supportive and shift the focus toward what help or guidance you can still offer.";
       }
 
       if (tone === "Neutral" && empathyScore === 0) {
-        return "This is professional enough, but it feels a little flat. It would be stronger if you opened with a more human acknowledgment so the customer feels heard before you move into the response.";
+        return "This is professional enough, but it feels a little flat. It would sound more human if you opened with a quick acknowledgment before moving into the response.";
       }
 
       if (tone === "Neutral") {
-        return "This is clear and fairly professional, but it could feel warmer. A small adjustment in tone and a stronger next-step statement would make it sound more polished and customer-friendly.";
+        return "This is clear and fairly professional, but it could feel warmer. A small shift in tone and a stronger next-step statement would make it sound more polished and customer-friendly.";
       }
 
       if (tone === "Positive" && empathyScore > 0 && professionalismScore > 0) {
-        return "This is in a good place overall. The message feels supportive, professional, and easy to understand. If you want to strengthen it even more, you could personalize the closing or make the next step a little more specific.";
+        return "This is in a good place overall. It already sounds supportive, professional, and easy to follow. If you wanted to strengthen it even more, you could personalize the wording or make the next step more specific.";
       }
 
-      return "This message is headed in the right direction. The tone is solid, but a little more warmth and clearer guidance would make it feel stronger and more complete.";
+      return "This message is headed in the right direction. The tone is solid, but a little more warmth and clarity would make it feel even stronger.";
     }
 
     function buildSuggestions(tone, empathyScore, professionalismScore, message, lowerMessage) {
       const suggestions = [];
 
       if (empathyScore === 0) {
-        suggestions.push("Open with a sentence that shows you understand the customer’s concern.");
+        suggestions.push("Start with a sentence that shows you understand the customer’s concern.");
       }
 
       if (professionalismScore === 0) {
-        suggestions.push("Use wording that sounds more polished and supportive.");
+        suggestions.push("Use wording that sounds a little more polished and supportive.");
       }
 
       if (tone === "Negative") {
-        suggestions.push("Shift the focus away from what cannot be done and toward what help you can offer.");
+        suggestions.push("Shift the focus away from what cannot be done and toward what help you can still offer.");
       }
 
       if (!lowerMessage.includes("next") && !lowerMessage.includes("will") && !lowerMessage.includes("follow up")) {
@@ -457,17 +441,17 @@
       }
 
       if (message.length < 35) {
-        suggestions.push("Add a little more detail so the message feels more complete.");
+        suggestions.push("Add a little more detail so the response feels more complete.");
       }
 
       if (suggestions.length === 0) {
-        suggestions.push("The message is already strong. Consider personalizing it slightly for the customer or situation.");
+        suggestions.push("The message is already strong. You could make it even better by personalizing it to the customer or situation.");
       }
 
       return suggestions;
     }
 
-    function buildRewriteOptions(tone, empathyScore, professionalismScore, lowerMessage) {
+    function buildRewriteOptions(tone, empathyScore) {
       if (tone === "Negative") {
         return {
           option1: "I understand your concern, and I appreciate you reaching out. While this request falls outside our current guidelines, I’d still be happy to review your situation and walk you through the next available steps.",
@@ -509,29 +493,32 @@
       return count;
     }
 
-    function copyRewrite(elementId) {
+    function copyRewrite(elementId, button) {
       const text = document.getElementById(elementId).textContent;
+      const originalText = button.textContent;
+      const originalBackground = button.style.background || "#1d4ed8";
 
       navigator.clipboard.writeText(text).then(() => {
-        copyStatus.textContent = "Rewrite copied to clipboard.";
-        copyStatus.style.display = "block";
+        button.textContent = "Copied!";
+        button.style.background = "#16a34a";
 
         setTimeout(() => {
-          copyStatus.style.display = "none";
-        }, 2000);
+          button.textContent = originalText;
+          button.style.background = originalBackground;
+        }, 1500);
       }).catch(() => {
-        copyStatus.textContent = "Copy failed. Please highlight and copy manually.";
-        copyStatus.style.display = "block";
+        button.textContent = "Failed";
+        button.style.background = "#dc2626";
 
         setTimeout(() => {
-          copyStatus.style.display = "none";
-        }, 2500);
+          button.textContent = originalText;
+          button.style.background = originalBackground;
+        }, 1500);
       });
     }
 
     function resetResults() {
       errorBox.style.display = "none";
-      copyStatus.style.display = "none";
       resultsSection.style.display = "none";
       toneResult.innerHTML = "";
       feedbackResult.textContent = "";
@@ -539,6 +526,12 @@
       rewriteOption1.textContent = "";
       rewriteOption2.textContent = "";
       rewriteOption3.textContent = "";
+
+      const copyButtons = document.querySelectorAll(".copy-btn");
+      copyButtons.forEach((button, index) => {
+        button.style.background = "#1d4ed8";
+        button.textContent = `Copy Option ${index + 1}`;
+      });
     }
 
     function clearAll() {
