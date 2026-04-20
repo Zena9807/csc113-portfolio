@@ -14,7 +14,8 @@
 **Result:** 
 - Error message displayed correctly when no input was entered  
 - Example message loaded and analyzed correctly  
-- Tone detection worked for both positive and negative messages  
+- Tone detection worked for both positive and negative messages
+ 
 **Status:** Completed
 
 ---
