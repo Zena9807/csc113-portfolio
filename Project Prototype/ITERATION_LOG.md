@@ -33,3 +33,11 @@
 **Prompt:** Add a "Suggested Rewrite" feature to provide example wording  
 **Result:** The app now generates improved message rewrites that users can use or adapt directly  
 **Status:** Improved
+
+---
+
+## Iteration 5
+**Problem:** Users needed faster, more practical ways to apply feedback  
+**Prompt:** Add multiple rewrite options with copy-to-clipboard functionality and visual confirmation  
+**Result:** The app now provides 3 different response styles and allows users to copy them instantly with a "Copied!" confirmation  
+**Status:** Completed
