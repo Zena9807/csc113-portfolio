@@ -16,6 +16,7 @@
 - The app uses keyword-based logic instead of real AI
 - Feedback is helpful but general and does not provide examples to replace negative or neutral statements
 - The UI is clean and easy to use
+- The improved version now includes a "Suggested Rewrite" feature that provides direct wording users can apply in real scenarios
 
 ---
 
@@ -73,4 +74,7 @@ After comparing both versions, I chose to continue with ChatGPT's version becaus
 
 ## Final Decision
 
-After testing multiple versions, I chose to move forward with ChatGPT’s version because it provided the best balance of usability, clarity, and actionable feedback. It was easier to understand, required fewer adjustments, and aligned most closely with the goals of the MVP.
+After testing multiple versions, I chose to continue with ChatGPT's version because it provided the best balance of usability, structure, and actionable feedback. 
+
+After further iteration, the application was improved to include a "Suggested Rewrite" feature, which enhances the usefulness of the tool by giving users direct wording they can apply in customer interactions.
+---
