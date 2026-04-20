@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Customer Experience Coach</title>
+  <style>
+    /* ------------------------------
+       Base Page Styles
+    ------------------------------ */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #f4f7fb, #e9f0f8);
+      color: #1f2937;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 24px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 2rem;
+      color: #0f172a;
+    }
+
+    .subtitle {
+      margin-bottom: 24px;
+      color: #475569;
+      line-height: 1.6;
+    }
+
+    .instructions {
+      background: #f8fafc;
+      border-left: 5px solid #2563eb;
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      color: #334155;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+      margin-top: 18px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 180px;
+      padding: 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      font-size: 1rem;
+      line-height: 1.5;
+      resize: vertical;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      opacity: 0.95;
+    }
+
+    .primary-btn {
+      background: #2563eb;
+      color: white;
+    }
+
+    .secondary-btn {
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+
+    .example-btn {
+      background: #0f766e;
+      color: white;
+    }
+
+    .error {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #fef2f2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+      display: none;
+    }
+
+    .results {
+      margin-top: 28px;
+      display: none;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .result-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .result-title {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 1.05rem;
+      color: #0f172a;
+    }
+
+    .tone-badge {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: bold;
+      margin-top: 4px;
+    }
+
+    .tone-positive {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .tone-neutral {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .tone-negative {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    ul {
+      margin-top: 8px;
+      padding-left: 20px;
+    }
+
+    .footer-note {
+      margin-top: 24px;
+      color: #64748b;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        margin: 20px auto;
+        padding: 14px;
+      }
+
+      .card {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>AI Customer Experience Coach</h1>
+      <p class="subtitle">
+        Paste a customer service message below and get feedback on tone, empathy,
+        professionalism, and ways to improve it.
+      </p>
+
+      <div class="instructions">
+        <strong>How to use:</strong> Paste or type a customer-facing message, then click
+        <strong>Analyze Message</strong>. The tool will review the message and give basic coaching feedback.
+      </div>
+
+      <label for="messageInput">Customer Service Message</label>
+      <textarea
+        id="messageInput"
+        placeholder="Example: I understand your frustration and I appreciate your patience while we look into this for you."
+      ></textarea>
+
+      <div class="button-row">
+        <button class="primary-btn" id="analyzeBtn">Analyze Message</button>
+        <button class="secondary-btn" id="clearBtn">Clear</button>
+        <button class="example-btn" id="exampleBtn">Load Example</button>
+      </div>
+
+      <div class="error" id="errorBox">
+        Please enter a customer service message before clicking Analyze.
+      </div>
+
+      <div class="results" id="resultsSection">
+        <div class="results-grid">
+          <div class="result-box">
+            <h2 class="result-title">Tone</h2>
+            <div id="toneResult"></div>
+          </div>
+
+          <div class="result-box">
+            <h2 class="result-title">Empathy & Professionalism Feedback</h2>
+            <p id="feedbackResult"></p>
+          </div>
+
+          <div class="result-box">
+            <h2 class="result-title">Suggestions for Improvement</h2>
+            <ul id="suggestionsList"></ul>
+          </div>
+        </div>
+      </div>
+
+      <p class="footer-note">
+        Note: This MVP uses simple keyword-based logic for feedback. It is a prototype designed
+        to demonstrate the concept in a browser.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    /* ----------------------------------
+       Element References
+    ---------------------------------- */
+    const messageInput = document.getElementById("messageInput");
+    const analyzeBtn = document.getElementById("analyzeBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const exampleBtn = document.getElementById("exampleBtn");
+    const errorBox = document.getElementById("errorBox");
+    const resultsSection = document.getElementById("resultsSection");
+    const toneResult = document.getElementById("toneResult");
+    const feedbackResult = document.getElementById("feedbackResult");
+    const suggestionsList = document.getElementById("suggestionsList");
+
+    /* ----------------------------------
+       Keyword Groups
+    ---------------------------------- */
+    const positiveWords = [
+      "thank you", "appreciate", "happy", "glad", "pleased", "help", "support",
+      "understand", "sorry", "apologize", "resolve", "assist", "patience"
+    ];
+
+    const negativeWords = [
+      "can't", "cannot", "won't", "impossible", "policy", "denied", "problem",
+      "frustrated", "angry", "upset", "no", "not my fault", "nothing"
+    ];
+
+    const empathyWords = [
+      "understand", "sorry", "apologize", "appreciate your patience",
+      "i know this is frustrating", "i can see", "thank you for your patience"
+    ];
+
+    const professionalismWords = [
+      "please", "thank you", "assist", "resolve", "appreciate", "certainly",
+      "glad to help", "i'd be happy to"
+    ];
+
+    /* ----------------------------------
+       Analyze Button Click
+    ---------------------------------- */
+    analyzeBtn.addEventListener("click", analyzeMessage);
+    clearBtn.addEventListener("click", clearAll);
+    exampleBtn.addEventListener("click", loadExample);
+
+    function analyzeMessage() {
+      const message = messageInput.value.trim();
+      const lowerMessage = message.toLowerCase();
+
+      // Reset display states
+      errorBox.style.display = "none";
+      resultsSection.style.display = "none";
+      suggestionsList.innerHTML = "";
+      toneResult.innerHTML = "";
+      feedbackResult.textContent = "";
+
+      // Validate input
+      if (!message) {
+        errorBox.style.display = "block";
+        return;
+      }
+
+      // Score the message using simple keyword logic
+      const positiveScore = countMatches(lowerMessage, positiveWords);
+      const negativeScore = countMatches(lowerMessage, negativeWords);
+      const empathyScore = countMatches(lowerMessage, empathyWords);
+      const professionalismScore = countMatches(lowerMessage, professionalismWords);
+
+      // Determine tone
+      let tone = "Neutral";
+      let toneClass = "tone-neutral";
+
+      if (positiveScore > negativeScore) {
+        tone = "Positive";
+        toneClass = "tone-positive";
+      } else if (negativeScore > positiveScore) {
+        tone = "Negative";
+        toneClass = "tone-negative";
+      }
+
+      // Build feedback
+      let feedback = [];
+
+      if (empathyScore > 0) {
+        feedback.push("Your message shows some empathy, which helps the customer feel heard.");
+      } else {
+        feedback.push("Your message could feel stronger with more empathy toward the customer.");
+      }
+
+      if (professionalismScore > 0) {
+        feedback.push("The wording sounds reasonably professional.");
+      } else {
+        feedback.push("The message could sound more polished and professional.");
+      }
+
+      if (tone === "Positive") {
+        feedback.push("Overall, the tone comes across as supportive and helpful.");
+      } else if (tone === "Neutral") {
+        feedback.push("The tone is neutral. It may benefit from warmer, more customer-friendly wording.");
+      } else {
+        feedback.push("The tone may come across as harsh or discouraging to the customer.");
+      }
+
+      // Build suggestions
+      const suggestions = [];
+
+      if (empathyScore === 0) {
+        suggestions.push("Add a phrase that shows empathy, such as “I understand your frustration” or “Thank you for your patience.”");
+      }
+
+      if (professionalismScore === 0) {
+        suggestions.push("Use more professional wording, such as “I’d be happy to assist” or “Let’s work on resolving this.”");
+      }
+
+      if (tone === "Negative") {
+        suggestions.push("Replace blunt or negative wording with calmer, more solution-focused language.");
+      }
+
+      if (message.length < 30) {
+        suggestions.push("Add more detail so the customer clearly understands the next step.");
+      }
+
+      if (!lowerMessage.includes("next") && !lowerMessage.includes("will") && !lowerMessage.includes("follow up")) {
+        suggestions.push("Include a next step so the customer knows what to expect.");
+      }
+
+      if (suggestions.length === 0) {
+        suggestions.push("This message is off to a good start. You could make it even better by personalizing it for the customer.");
+      }
+
+      // Display results
+      toneResult.innerHTML = `<span class="tone-badge ${toneClass}">${tone}</span>`;
+      feedbackResult.textContent = feedback.join(" ");
+
+      suggestions.forEach((suggestion) => {
+        const li = document.createElement("li");
+        li.textContent = suggestion;
+        suggestionsList.appendChild(li);
+      });
+
+      resultsSection.style.display = "block";
+    }
+
+    /* ----------------------------------
+       Helper Functions
+    ---------------------------------- */
+    function countMatches(text, keywords) {
+      let count = 0;
+      keywords.forEach((word) => {
+        if (text.includes(word)) {
+          count++;
+        }
+      });
+      return count;
+    }
+
+    function clearAll() {
+      messageInput.value = "";
+      errorBox.style.display = "none";
+      resultsSection.style.display = "none";
+      toneResult.innerHTML = "";
+      feedbackResult.textContent = "";
+      suggestionsList.innerHTML = "";
+    }
+
+    function loadExample() {
+      messageInput.value = "We understand your frustration and appreciate your patience. I’d be happy to help review your account and provide the next steps.";
+      errorBox.style.display = "none";
+      resultsSection.style.display = "none";
+    }
+  </script>
+</body>
+</html>
