@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Customer Experience Coach</title>
+
+  <!-- =====================================================
+       STYLE SECTION
+       Clean, modern layout using CSS variables for easy
+       customization. No external libraries needed.
+  ====================================================== -->
+  <style>
+    /* ── CSS Variables (easy to change colors/fonts) ── */
+    :root {
+      --bg:           #f4f6fb;
+      --surface:      #ffffff;
+      --border:       #dde2ef;
+      --accent:       #2a5cff;
+      --accent-hover: #1a47d4;
+      --danger:       #e03e3e;
+      --success:      #1a9e5f;
+      --neutral:      #6b7280;
+      --text-dark:    #1a1f36;
+      --text-mid:     #3d4460;
+      --text-light:   #6b7280;
+      --radius:       12px;
+      --shadow:       0 4px 24px rgba(42,92,255,0.08);
+      --font:         'Segoe UI', system-ui, sans-serif;
+    }
+
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text-dark);
+      min-height: 100vh;
+      padding: 32px 16px 64px;
+    }
+
+    /* ── Page Container ── */
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    header .badge {
+      display: inline-block;
+      background: #e8edff;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 99px;
+      margin-bottom: 14px;
+    }
+    header h1 {
+      font-size: clamp(26px, 5vw, 38px);
+      font-weight: 800;
+      color: var(--text-dark);
+      line-height: 1.2;
+      letter-spacing: -0.5px;
+    }
+    header h1 span { color: var(--accent); }
+    header p {
+      margin-top: 10px;
+      font-size: 16px;
+      color: var(--text-light);
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    /* ── Label ── */
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-mid);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+    }
+
+    /* ── Textarea ── */
+    textarea {
+      width: 100%;
+      min-height: 160px;
+      padding: 14px 16px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-family: var(--font);
+      font-size: 15px;
+      color: var(--text-dark);
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+      background: #fafbff;
+      line-height: 1.6;
+    }
+    textarea:focus { border-color: var(--accent); background: #fff; }
+    textarea::placeholder { color: #adb5c7; }
+
+    /* ── Character count ── */
+    .char-count {
+      text-align: right;
+      font-size: 12px;
+      color: var(--text-light);
+      margin-top: 6px;
+    }
+
+    /* ── Error message ── */
+    .error-msg {
+      display: none;           /* hidden by default */
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: #fff0f0;
+      border-radius: 6px;
+      border-left: 3px solid var(--danger);
+    }
+    .error-msg.visible { display: block; }
+
+    /* ── Button Row ── */
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    /* ── Buttons ── */
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 700;
+      padding: 11px 22px;
+      transition: background 0.18s, transform 0.12s, opacity 0.18s;
+    }
+    button:active { transform: scale(0.97); }
+
+    /* Primary – Analyze */
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      flex: 1 1 160px;
+      font-size: 15px;
+      padding: 13px 22px;
+      letter-spacing: 0.01em;
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+
+    /* Secondary – Clear / Example */
+    .btn-secondary {
+      background: #eef1fa;
+      color: var(--text-mid);
+    }
+    .btn-secondary:hover { background: #dde3f5; }
+
+    /* ── Results Section ── */
+    #results {
+      display: none;           /* hidden until analysis runs */
+      animation: fadeIn 0.35s ease;
+    }
+    #results.visible { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Tone Badge ── */
+    .tone-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .tone-label {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-light);
+    }
+    .tone-badge {
+      font-size: 14px;
+      font-weight: 800;
+      padding: 5px 18px;
+      border-radius: 99px;
+      letter-spacing: 0.04em;
+    }
+    .tone-badge.positive  { background: #d4f5e5; color: #0d7a47; }
+    .tone-badge.neutral   { background: #e8eaf0; color: #4a5270; }
+    .tone-badge.negative  { background: #fde8e8; color: #c0392b; }
+
+    /* ── Feedback Blocks ── */
+    .feedback-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    @media (max-width: 520px) { .feedback-grid { grid-template-columns: 1fr; } }
+
+    .feedback-block {
+      background: #f7f9ff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .feedback-block h3 {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-light);
+      margin-bottom: 8px;
+    }
+    .feedback-block p {
+      font-size: 14px;
+      color: var(--text-mid);
+      line-height: 1.6;
+    }
+
+    /* ── Suggestions List ── */
+    .suggestions-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-light);
+      margin-bottom: 12px;
+    }
+    .suggestions-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .suggestions-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--text-mid);
+      background: #f0f4ff;
+      border-radius: 8px;
+      padding: 12px 14px;
+      line-height: 1.5;
+    }
+    /* Icon dot before each suggestion */
+    .suggestions-list li::before {
+      content: '→';
+      font-weight: 900;
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── Divider ── */
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 22px 0;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      color: var(--text-light);
+      font-size: 12px;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- ============================================================
+         HEADER
+    ============================================================= -->
+    <header>
+      <div class="badge">Customer Service Tool · MVP v1.0</div>
+      <h1>AI Customer Experience <span>Coach</span></h1>
+      <p>Paste a customer service message below, then click <strong>Analyze</strong> to get instant tone feedback and improvement suggestions.</p>
+    </header>
+
+    <!-- ============================================================
+         INPUT CARD
+    ============================================================= -->
+    <div class="card">
+      <label for="messageInput">Your Customer Service Message</label>
+
+      <!-- Large text area for pasting a message -->
+      <textarea
+        id="messageInput"
+        placeholder="Paste your customer service message here…"
+        aria-label="Customer service message"
+      ></textarea>
+
+      <!-- Live character count display -->
+      <div class="char-count" id="charCount">0 characters</div>
+
+      <!-- Error shown when Analyze is clicked with no input -->
+      <div class="error-msg" id="errorMsg" role="alert">
+        ⚠️ Please enter a message before analyzing.
+      </div>
+
+      <!-- Button row: Analyze, Load Example, Clear -->
+      <div class="btn-row">
+        <button class="btn-primary"  id="analyzeBtn"  onclick="analyzeMessage()">Analyze Message</button>
+        <button class="btn-secondary" id="exampleBtn" onclick="loadExample()">Load Example</button>
+        <button class="btn-secondary" id="clearBtn"   onclick="clearAll()">Clear</button>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         RESULTS CARD
+         Hidden by default. Shown after analysis.
+    ============================================================= -->
+    <div class="card" id="results">
+
+      <!-- Tone result row -->
+      <div class="tone-row">
+        <span class="tone-label">Tone Detected:</span>
+        <span class="tone-badge" id="toneBadge">—</span>
+      </div>
+
+      <hr />
+
+      <!-- Empathy & Professionalism feedback blocks side-by-side -->
+      <div class="feedback-grid">
+        <div class="feedback-block">
+          <h3>Empathy</h3>
+          <p id="empathyFeedback">—</p>
+        </div>
+        <div class="feedback-block">
+          <h3>Professionalism</h3>
+          <p id="profFeedback">—</p>
+        </div>
+      </div>
+
+      <hr />
+
+      <!-- Suggestions for improvement -->
+      <div class="suggestions-title">Suggestions for Improvement</div>
+      <ul class="suggestions-list" id="suggestionsList"></ul>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>AI Customer Experience Coach &nbsp;·&nbsp; MVP v1.0 &nbsp;·&nbsp; Keyword-based analysis</footer>
+
+  </div><!-- /container -->
+
+
+  <!-- ============================================================
+       JAVASCRIPT SECTION
+       All logic is keyword-based — no API calls required.
+  ============================================================= -->
+  <script>
+
+    // ─────────────────────────────────────────────────────────────
+    // EXAMPLE MESSAGE
+    // Loaded when the user clicks "Load Example"
+    // ─────────────────────────────────────────────────────────────
+    const EXAMPLE_MESSAGE =
+      "Your order is delayed. We will update you when it ships. " +
+      "Contact us if you have questions.";
+
+
+    // ─────────────────────────────────────────────────────────────
+    // KEYWORD LISTS
+    // Used to detect tone, empathy, and professionalism signals.
+    // These lists can be expanded as the app evolves.
+    // ─────────────────────────────────────────────────────────────
+
+    // Positive tone keywords
+    const POSITIVE_WORDS = [
+      "happy", "glad", "great", "excellent", "wonderful", "delighted",
+      "pleased", "appreciate", "thank", "thanks", "grateful", "welcome",
+      "fantastic", "amazing", "love", "enjoy", "pleasure", "excited",
+      "congrats", "congratulations", "superb", "perfect"
+    ];
+
+    // Negative tone keywords
+    const NEGATIVE_WORDS = [
+      "sorry", "unfortunately", "problem", "issue", "error", "mistake",
+      "fault", "wrong", "bad", "terrible", "horrible", "awful", "fail",
+      "failed", "cannot", "can't", "unable", "impossible", "never",
+      "worst", "angry", "frustrated", "disappoint", "unacceptable", "urgent"
+    ];
+
+    // Empathy signal keywords
+    const EMPATHY_WORDS = [
+      "understand", "understand your", "i'm sorry", "apologize", "apologies",
+      "feel", "concern", "frustration", "important to you", "you're right",
+      "hear you", "appreciate your", "thank you for", "we care",
+      "your experience", "i know", "must be", "completely understandable"
+    ];
+
+    // Unprofessional tone signals
+    const UNPROFESSIONAL_WORDS = [
+      "whatever", "duh", "obviously", "lol", "haha", "omg", "nope",
+      "yep", "yeah", "kinda", "sorta", "totally", "dunno", "idk",
+      "honestly", "tbh", "btw", "asap!!", "ugh"
+    ];
+
+    // Professional quality signals (greetings, courteous phrases, closings)
+    const PROFESSIONAL_SIGNALS = [
+      "dear", "hello", "hi", "good morning", "good afternoon",
+      "please", "kindly", "thank you", "sincerely", "regards",
+      "best regards", "warm regards", "best wishes", "do not hesitate",
+      "feel free to", "let us know", "we are here", "happy to help",
+      "looking forward", "at your earliest", "our team"
+    ];
+
+    // Next-step phrases (used to detect whether a clear next step exists)
+    const NEXT_STEP_PHRASES = [
+      "please", "contact us", "reply", "call", "visit", "click",
+      "let us know", "reach out", "submit", "follow up", "we will",
+      "we'll", "you will", "you'll", "expect", "shortly", "within"
+    ];
+
+
+    // ─────────────────────────────────────────────────────────────
+    // HELPER: Count matches in a text for an array of keywords
+    // Returns the number of matches found (not unique).
+    // ─────────────────────────────────────────────────────────────
+    function countMatches(text, keywords) {
+      let count = 0;
+      keywords.forEach(function(word) {
+        if (text.includes(word)) count++;
+      });
+      return count;
+    }
+
+
+    // ─────────────────────────────────────────────────────────────
+    // ANALYZE TONE
+    // Compares positive vs. negative keyword counts.
+    // Returns "positive", "neutral", or "negative".
+    // ─────────────────────────────────────────────────────────────
+    function analyzeTone(text) {
+      var pos = countMatches(text, POSITIVE_WORDS);
+      var neg = countMatches(text, NEGATIVE_WORDS);
+
+      if (pos > neg + 1) return "positive";
+      if (neg > pos + 1) return "negative";
+      return "neutral";
+    }
+
+
+    // ─────────────────────────────────────────────────────────────
+    // ANALYZE EMPATHY
+    // Returns an object: { hasEmpathy: bool, feedback: string }
+    // ─────────────────────────────────────────────────────────────
+    function analyzeEmpathy(text) {
+      var matches = countMatches(text, EMPATHY_WORDS);
+      if (matches >= 2) {
+        return {
+          hasEmpathy: true,
+          feedback: "This message shows empathy. It acknowledges the customer's feelings or situation."
+        };
+      } else if (matches === 1) {
+        return {
+          hasEmpathy: true,
+          feedback: "There is a small sign of empathy, but more acknowledgment of the customer's feelings would help."
+        };
+      } else {
+        return {
+          hasEmpathy: false,
+          feedback: "The message does not show empathy. Consider acknowledging the customer's concern or feelings."
+        };
+      }
+    }
+
+
+    // ─────────────────────────────────────────────────────────────
+    // ANALYZE PROFESSIONALISM
+    // Returns an object: { isProfessional: bool, feedback: string }
+    // ─────────────────────────────────────────────────────────────
+    function analyzeProfessionalism(text) {
+      var goodSignals  = countMatches(text, PROFESSIONAL_SIGNALS);
+      var badSignals   = countMatches(text, UNPROFESSIONAL_WORDS);
+
+      if (badSignals > 0) {
+        return {
+          isProfessional: false,
+          feedback: "Some wording may come across as informal or unprofessional. Try using more courteous, formal language."
+        };
+      } else if (goodSignals >= 2) {
+        return {
+          isProfessional: true,
+          feedback: "The message uses professional language and a courteous tone."
+        };
+      } else {
+        return {
+          isProfessional: true,
+          feedback: "The message is generally professional, though adding a polite greeting or closing could strengthen it."
+        };
+      }
+    }
+
+
+    // ─────────────────────────────────────────────────────────────
+    // GENERATE SUGGESTIONS
+    // Builds a list of 1–3 specific improvement suggestions
+    // based on what is missing from the message.
+    // ─────────────────────────────────────────────────────────────
+    function generateSuggestions(text, empathyResult, profResult) {
+      var suggestions = [];
+
+      // Suggestion 1: Add empathy if missing
+      if (!empathyResult.hasEmpathy) {
+        suggestions.push(
+          "Add empathy — start by acknowledging the customer's situation. " +
+          'For example: "I completely understand how frustrating this must be."'
+        );
+      }
+
+      // Suggestion 2: Improve professionalism if needed
+      if (!profResult.isProfessional) {
+        suggestions.push(
+          "Use more professional wording. Avoid casual phrases and aim for " +
+          "courteous, clear language throughout your message."
+        );
+      }
+
+      // Suggestion 3: Include a clear next step if missing
+      var hasNextStep = countMatches(text, NEXT_STEP_PHRASES) > 0;
+      if (!hasNextStep) {
+        suggestions.push(
+          "Include a clear next step so the customer knows what to do or expect. " +
+          'For example: "Please reply to this email and we will assist you right away."'
+        );
+      }
+
+      // Suggestion 4: Add more detail if the message is very short
+      if (text.split(" ").length < 15) {
+        suggestions.push(
+          "Add more detail. Short messages can feel abrupt or unhelpful. " +
+          "Provide context so the customer understands the full situation."
+        );
+      }
+
+      // Cap at 3 suggestions max (per requirements)
+      return suggestions.slice(0, 3);
+
+      // Edge case: if no suggestions, give a positive note
+    }
+
+
+    // ─────────────────────────────────────────────────────────────
+    // MAIN: ANALYZE MESSAGE
+    // Called when the user clicks the "Analyze" button.
+    // ─────────────────────────────────────────────────────────────
+    function analyzeMessage() {
+
+      // 1. Get user input and clean it up
+      var rawInput = document.getElementById("messageInput").value;
+      var trimmed  = rawInput.trim();
+
+      // 2. Validate — show error if empty
+      if (!trimmed) {
+        showError(true);
+        hideResults();
+        return;
+      }
+      showError(false);
+
+      // 3. Lowercase text for keyword matching (we don't modify the display)
+      var text = trimmed.toLowerCase();
+
+      // 4. Run all three analyses
+      var tone       = analyzeTone(text);
+      var empathy    = analyzeEmpathy(text);
+      var prof       = analyzeProfessionalism(text);
+      var suggestions = generateSuggestions(text, empathy, prof);
+
+      // 5. Display tone badge
+      var badge = document.getElementById("toneBadge");
+      badge.textContent = tone.charAt(0).toUpperCase() + tone.slice(1); // capitalize
+      badge.className = "tone-badge " + tone;   // applies CSS color class
+
+      // 6. Display empathy feedback
+      document.getElementById("empathyFeedback").textContent = empathy.feedback;
+
+      // 7. Display professionalism feedback
+      document.getElementById("profFeedback").textContent = prof.feedback;
+
+      // 8. Display suggestions list
+      var list = document.getElementById("suggestionsList");
+      list.innerHTML = "";   // clear previous suggestions
+
+      if (suggestions.length === 0) {
+        // All checks passed — show a positive message
+        var li = document.createElement("li");
+        li.textContent = "Great job! This message looks clear, empathetic, and professional.";
+        list.appendChild(li);
+      } else {
+        suggestions.forEach(function(suggestion) {
+          var li = document.createElement("li");
+          li.textContent = suggestion;
+          list.appendChild(li);
+        });
+      }
+
+      // 9. Show the results section
+      showResults();
+    }
+
+
+    // ─────────────────────────────────────────────────────────────
+    // LOAD EXAMPLE
+    // Fills the textarea with a sample message for demonstration.
+    // ─────────────────────────────────────────────────────────────
+    function loadExample() {
+      var input = document.getElementById("messageInput");
+      input.value = EXAMPLE_MESSAGE;
+      updateCharCount();
+      showError(false);
+      hideResults();
+    }
+
+
+    // ─────────────────────────────────────────────────────────────
+    // CLEAR
+    // Resets the textarea, hides results, and clears errors.
+    // ─────────────────────────────────────────────────────────────
+    function clearAll() {
+      document.getElementById("messageInput").value = "";
+      updateCharCount();
+      showError(false);
+      hideResults();
+    }
+
+
+    // ─────────────────────────────────────────────────────────────
+    // UI HELPERS
+    // Small functions that toggle visibility of elements.
+    // ─────────────────────────────────────────────────────────────
+
+    function showError(visible) {
+      var el = document.getElementById("errorMsg");
+      if (visible) {
+        el.classList.add("visible");
+      } else {
+        el.classList.remove("visible");
+      }
+    }
+
+    function showResults() {
+      var el = document.getElementById("results");
+      el.classList.add("visible");
+    }
+
+    function hideResults() {
+      var el = document.getElementById("results");
+      el.classList.remove("visible");
+    }
+
+    function updateCharCount() {
+      var input = document.getElementById("messageInput");
+      var count = input.value.length;
+      document.getElementById("charCount").textContent =
+        count + (count === 1 ? " character" : " characters");
+    }
+
+
+    // ─────────────────────────────────────────────────────────────
+    // EVENT LISTENERS
+    // Update character count as user types.
+    // ─────────────────────────────────────────────────────────────
+    document.getElementById("messageInput").addEventListener("input", function() {
+      updateCharCount();
+      // Hide error message once user starts typing
+      showError(false);
+    });
+
+  </script>
+
+</body>
+</html>
