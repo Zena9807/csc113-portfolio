@@ -47,6 +47,7 @@ Undecided. Running a different version to see if I like that version better.
 - The logic worked, but responses felt more surface-level
 - The tool focused more on identifying tone than improving it
 - UI design was simpler but less user-friendly
+- Visual was a little too generic
 
 ---
 
@@ -73,12 +74,13 @@ After comparing both versions, I chose to continue with ChatGPT's version becaus
 - The structure of the response was strong and well-organized
 - Feedback leaned more toward explanation than action
 - The tone felt more scholarly than practical for real-world use
+- Better from a visual prespective
 
 ---
 
 ## Final Decision
 
-After testing multiple versions, I chose to continue with ChatGPT's version because it provided the best structure, usability, and overall user experience.
+After testing multiple versions, I chose to continue with ChatGPT's version because it provided the best structure, usability, and overall user experience. I still liked the Claude version for the visual. However, for the purpose of the prototype, we are only looking for functionality. Adjustments to visuals can be made for the final product.
 
 After additional iterations, the application was significantly improved by:
 - Making feedback more natural and human-sounding
