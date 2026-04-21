@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Customer Experience Coach</title>
+    <style>
+        /* STYLING SECTION
+           Clean, professional look using a soft color palette suitable for a business tool.
+        */
+        :root {
+            --primary-color: #2563eb;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0 0 10px 0;
+            color: var(--primary-color);
+            font-size: 24px;
+        }
+
+        p.description {
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            resize: vertical;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.2s;
+        }
+
+        .btn-analyze { background-color: var(--primary-color); color: white; flex-grow: 2; }
+        .btn-example { background-color: #e2e8f0; color: #475569; flex-grow: 1; }
+        .btn-clear { background-color: #fee2e2; color: #991b1b; }
+
+        button:hover { opacity: 0.9; }
+
+        /* Results Display Styling */
+        #results {
+            display: none; /* Hidden until analysis happens */
+            border-top: 2px solid var(--border-color);
+            padding-top: 20px;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-item {
+            margin-bottom: 20px;
+        }
+
+        .label {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .tone-positive { background: #dcfce7; color: #166534; }
+        .tone-neutral { background: #f1f5f9; color: #475569; }
+        .tone-negative { background: #fee2e2; color: #991b1b; }
+
+        .suggestion-list {
+            margin: 10px 0 0 0;
+            padding-left: 20px;
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 14px;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>AI Customer Experience Coach</h1>
+        <p class="description">Analyze your messages for tone, empathy, and clarity.</p>
+    </header>
+
+    <div class="input-group">
+        <div id="error" class="error-message">Please enter a message to analyze.</div>
+        <textarea id="messageInput" placeholder="Paste the customer message here..."></textarea>
+    </div>
+
+    <div class="button-group">
+        <button class="btn-analyze" onclick="analyzeMessage()">Analyze</button>
+        <button class="btn-example" onclick="loadExample()">Load Example</button>
+        <button class="btn-clear" onclick="clearAll()">Clear</button>
+    </div>
+
+    <div id="results">
+        <div class="result-item">
+            <span class="label">Tone Detection</span>
+            <div id="toneResult"></div>
+        </div>
+
+        <div class="result-item">
+            <span class="label">Empathy & Professionalism</span>
+            <div id="statusResult"></div>
+        </div>
+
+        <div class="result-item">
+            <span class="label">Improvement Suggestions</span>
+            <ul id="suggestionsResult" class="suggestion-list"></ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    /**
+     * LOGIC SECTION
+     * This section contains the keyword-based analysis engine.
+     */
+
+    const inputArea = document.getElementById('messageInput');
+    const resultsDiv = document.getElementById('results');
+    const errorDiv = document.getElementById('error');
+
+    // Example content for the "Load Example" button
+    function loadExample() {
+        inputArea.value = "Your order is late because the warehouse is busy. We can't do anything about it right now. Just wait.";
+        errorDiv.style.display = 'none';
+    }
+
+    // Resets the UI
+    function clearAll() {
+        inputArea.value = "";
+        resultsDiv.style.display = 'none';
+        errorDiv.style.display = 'none';
+    }
+
+    // Main Analysis Function
+    function analyzeMessage() {
+        const text = inputArea.value.trim().toLowerCase();
+
+        // Check if input is empty
+        if (!text) {
+            errorDiv.style.display = 'block';
+            resultsDiv.style.display = 'none';
+            return;
+        }
+        errorDiv.style.display = 'none';
+
+        // 1. Keyword-based Tone Analysis
+        let tone = "Neutral";
+        let toneClass = "tone-neutral";
+
+        const positiveWords = ['happy', 'great', 'excellent', 'glad', 'thanks', 'thank you', 'appreciate', 'welcome', 'pleasure'];
+        const negativeWords = ['late', 'bad', 'unfortunate', 'cannot', "can't", 'wrong', 'issue', 'problem', 'fault', 'stop', 'wait'];
+
+        let posCount = positiveWords.filter(word => text.includes(word)).length;
+        let negCount = negativeWords.filter(word => text.includes(word)).length;
+
+        if (posCount > negCount) {
+            tone = "Positive";
+            toneClass = "tone-positive";
+        } else if (negCount > posCount) {
+            tone = "Negative / Cold";
+            toneClass = "tone-negative";
+        }
+
+        // 2. Empathy & Professionalism Check
+        const empathyWords = ['understand', 'sorry', 'apologize', 'hear you', 'feel'];
+        const professionalWords = ['regards', 'sincerely', 'assistance', 'regarding', 'furthermore'];
+        
+        let hasEmpathy = empathyWords.some(word => text.includes(word));
+        let isProfessional = text.length > 20 && !text.includes("!!!") && text.includes("you");
+
+        // 3. Generate Suggestions
+        let suggestions = [];
+
+        if (!hasEmpathy) {
+            suggestions.push("Try adding an empathetic opening, like 'I understand how frustrating this is.'");
+        }
+        if (negCount > 1) {
+            suggestions.push("Try rephrasing negative constraints into positive actions (e.g., 'What I can do is...' instead of 'I can't').");
+        }
+        if (text.length < 30) {
+            suggestions.push("The message is quite short. Consider adding a professional closing like 'Let me know if you need anything else.'");
+        }
+        if (suggestions.length === 0) {
+            suggestions.push("This looks great! The message is clear and balanced.");
+        }
+
+        // Limit to 3 suggestions as per PRD
+        suggestions = suggestions.slice(0, 3);
+
+        // Display results in the UI
+        displayResults(tone, toneClass, hasEmpathy, isProfessional, suggestions);
+    }
+
+    function displayResults(tone, toneClass, hasEmpathy, isProfessional, suggestions) {
+        // Set Tone Badge
+        const toneElem = document.getElementById('toneResult');
+        toneElem.innerHTML = `<span class="badge ${toneClass}">${tone}</span>`;
+
+        // Set Empathy/Prof status
+        const statusElem = document.getElementById('statusResult');
+        statusElem.innerHTML = `
+            <p style="margin:5px 0; font-size: 14px;">
+                ${hasEmpathy ? '✅ Empathy detected' : '❌ Needs more empathy'}<br>
+                ${isProfessional ? '✅ Professional structure' : '⚠️ Tone may be too casual/abrupt'}
+            </p>
+        `;
+
+        // Set Suggestions
+        const sugList = document.getElementById('suggestionsResult');
+        sugList.innerHTML = "";
+        suggestions.forEach(s => {
+            const li = document.createElement('li');
+            li.textContent = s;
+            li.style.marginBottom = "5px";
+            sugList.appendChild(li);
+        });
+
+        // Show the hidden results div
+        resultsDiv.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
