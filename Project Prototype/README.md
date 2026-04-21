@@ -3,6 +3,15 @@
 ## Overview
 This project is a browser-based tool designed to improve customer service communication. Users can paste a message and receive feedback on tone, empathy, and professionalism, along with ready-to-use response options.
 
+## Demo Video
+
+👉 [Watch Demo Video](https://www.loom.com/share/9cd53815d14842a59279bd95c3964d30)
+
+This demo shows:
+- How the app analyzes customer messages
+- How feedback is generated
+- How rewrite options can be copied and used in real workflows
+
 ## What It Does
 - Analyzes customer service messages
 - Identifies tone (positive, neutral, negative)
